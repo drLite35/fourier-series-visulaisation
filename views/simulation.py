@@ -25,33 +25,34 @@ def view(game):
 
     CIRCLE_COLOR = (0, 0, 0)
     CIRCLE_COLORS = [
-                    (25, 25, 25),    # Very dark gray
-                    (34, 32, 52),    # Dark indigo
-                    (44, 62, 80),    # Dark blue-gray
-                    (52, 73, 94),    # Dark slate blue
-                    (46, 49, 49),    # Charcoal
-                    (66, 73, 73),    # Dark gray-green
-                    (70, 56, 37),    # Dark brown
-                    (39, 55, 70),    # Steel blue
-                    (51, 51, 51),    # Dark gray
-                    (29, 32, 33),    # Gunmetal
-                    (54, 54, 54),    # Iron gray
-                    (45, 63, 81),    # Midnight blue
-                    (60, 60, 60),    # Ash gray
-                    (50, 50, 50),    # Granite gray
-                    (38, 34, 98),    # Navy
-                    (62, 55, 64),    # Dark plum
-                    (45, 45, 45),    # Slate gray
-                    (55, 42, 42),    # Dark mahogany
-                    (31, 44, 53),    # Deep sea blue
-                    (34, 47, 62)     # Blue black
-                ]
-    CENTER_X = vw(23)
-    CENTER_Y = vh(50)
+        (160, 0, 200),
+        (135, 206, 235),
+        (220, 225, 30),
+        (200, 100, 100),
+        (100, 200, 100),
+        (100, 100, 200),
+        (100, 200, 200),
+        (200, 100, 200),
+        (200, 200, 100),
+        (150, 200, 150),
+    ]
     MAX_RADIUS = vw(10)
     STROKE_WIDTH = 2
-    SPEED = 1 / 50
-    LINE_X = CENTER_X + MAX_RADIUS * 2
+    SPEED = 1 / 100
+
+    num_circles = 6
+
+    total_radius = 0
+    for i in range(num_circles):
+        n = 2 * i + 1
+        radius_contribution = MAX_RADIUS * (4 / (n * pi))
+        total_radius += radius_contribution
+    total_radius = int(total_radius)
+
+    CENTER_X = total_radius + 32
+    CENTER_Y = vh(60)
+    LINE_X = CENTER_X * 2
+    LINE_W = vw(100) - LINE_X - 20
 
     step = 0
 
@@ -63,36 +64,36 @@ def view(game):
         prev_x = x
         prev_y = y
 
-        for i in range(5):
+        for i in range(num_circles):
             n = 2 * i + 1
 
-            x += int(MAX_RADIUS * (4 / (n * pi) * cos(n * step)))
-            y += int(MAX_RADIUS * (4 / (n * pi) * sin(n * step)))
+            x += int(MAX_RADIUS * (4 / (n * pi) * cos(n * -step)))
+            y += int(MAX_RADIUS * (4 / (n * pi) * sin(n * -step)))
 
             rad = int(sqrt((prev_x - x) ** 2 + (prev_y - y) ** 2))
 
-            pygame.draw.circle(screen, CIRCLE_COLOR, (prev_x, prev_y), rad, STROKE_WIDTH)
+            clr = CIRCLE_COLORS[i % len(CIRCLE_COLORS)]
+
+            pygame.draw.circle(screen, CIRCLE_COLOR, (prev_x, prev_y), rad, STROKE_WIDTH + 1)
+            pygame.draw.circle(screen, CIRCLE_COLOR, (prev_x, prev_y), rad + 1, STROKE_WIDTH)
+            pygame.draw.circle(screen, clr, (prev_x, prev_y), rad, STROKE_WIDTH)
             pygame.draw.circle(screen, CIRCLE_COLOR, (x, y), 3)
 
             prev_x = x
             prev_y = y
 
         wave.insert(0, y)
-        pygame.draw.line(screen, (150, 150, 180), (x, y), (LINE_X, y), 2)
+        pygame.draw.line(screen, (200, 200, 220), (x + 3, y), (LINE_X, y), 3)
 
-        for i in range(len(wave)):
-            pygame.draw.circle(screen, CIRCLE_COLOR, (LINE_X + i, wave[i]), 2)
-
-        # if len(wave) >= 2:
-        #     points = [(LINE_X + i, wave[i]) for i in range(len(wave)) if i % 8 == 0] 
-        #     utils.draw_bezier_curve(screen, points)
+        if len(wave) >= 3:
+            utils.draw_catmull_rom_spline(screen, wave, LINE_X, CIRCLE_COLOR, 5)
 
 
     def update():
         nonlocal step
         step += SPEED
 
-        if len(wave) > vw(50):
+        if len(wave) > LINE_W:
             wave.pop()
 
         draw()

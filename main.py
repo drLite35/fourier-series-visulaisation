@@ -20,12 +20,12 @@ import config
 from views import simulation
 from components.help import Help
 
-
 class FourierSim:
     def __init__(self):
         self.running = True
         self.clock = pygame.time.Clock()
 
+        self.fps = 120
         self.gameDisplay = None
         self.info = None
         self.update_function = None
@@ -91,8 +91,8 @@ class FourierSim:
         if not self.gameDisplay:
             self.gameDisplay = pygame.display.set_mode(
                 (self.info.current_w, self.info.current_h))
-            pygame.display.set_caption("River Crossing Puzzle")
-
+            pygame.display.set_caption("Fourier Series Visualisation")
+        
         while self.running:
             self.gameDisplay.fill(config.colors["bg"])
 
@@ -112,7 +112,7 @@ class FourierSim:
                     break
 
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(self.fps)
 
         return
 
