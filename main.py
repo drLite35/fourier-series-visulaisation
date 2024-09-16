@@ -16,23 +16,25 @@
 
 import pygame
 from gi.repository import Gtk
-import config
+from config import Config
 from views import simulation
-from components.help import Help
+from font import Font
+
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
 class FourierSim:
     def __init__(self):
         self.running = True
         self.clock = pygame.time.Clock()
+        self.config = Config()
 
-        self.fps = 120
         self.gameDisplay = None
         self.info = None
         self.update_function = None
-        self.bg = None
-        self.events = []
+        self.events = []        
+        self.font = Font()
 
-        self.help_popup = Help(self)
 
     def vw(self, x):
         return (x * self.display_rect.width) // 100
@@ -51,28 +53,6 @@ class FourierSim:
     def set_screen(self, view):
         view(self)
 
-    def set_background(self, bg):
-        if bg is None:
-            self.bg = None
-            return
-        w, h = bg.get_size()
-        screen_w, screen_h = self.gameDisplay.get_size()
-        m_w, m_h = w, h
-
-        m_bg = bg
-
-        if screen_w < w or screen_w > w:
-            m_h = (h / w) * screen_w
-            m_bg = pygame.transform.scale(bg, (screen_w, int(m_h)))
-            w, h = m_bg.get_size()
-            m_w, m_h = w, h
-
-        if screen_h > h:
-            m_w = (w / h) * screen_h
-            m_bg = pygame.transform.scale(bg, (int(m_w), screen_h))
-
-        self.bg = m_bg
-
     def show_help(self):
         self.help_popup.show()
 
@@ -84,9 +64,8 @@ class FourierSim:
         self.info = pygame.display.Info()
         self.display_rect = self.gameDisplay.get_rect()
 
-        config.set_theme("default")
+        self.font.intialize("./Geist.ttf")
         self.set_screen(simulation.view)
-        self.help_popup.initialize()
 
         if not self.gameDisplay:
             self.gameDisplay = pygame.display.set_mode(
@@ -94,10 +73,7 @@ class FourierSim:
             pygame.display.set_caption("Fourier Series Visualisation")
         
         while self.running:
-            self.gameDisplay.fill(config.colors["bg"])
-
-            if self.bg is not None:
-                self.gameDisplay.blit(self.bg, (0, 0))
+            self.gameDisplay.fill(BLACK if self.config.dark else WHITE)
 
             if self.update_function is not None:
                 self.update_function()
@@ -112,7 +88,7 @@ class FourierSim:
                     break
 
             pygame.display.update()
-            self.clock.tick(self.fps)
+            self.clock.tick(self.config.fps)
 
         return
 

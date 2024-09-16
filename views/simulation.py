@@ -22,6 +22,13 @@ def view(game):
     vw = game.vw
     vh = game.vh
     screen = game.gameDisplay
+    font = game.font
+
+    width = vw(100)
+    height = vh(100)
+
+    BTN_W = vw(6)
+    BTN_H = vh(5)
 
     CIRCLE_COLOR = (0, 0, 0)
     CIRCLE_COLORS = [
@@ -54,15 +61,31 @@ def view(game):
     LINE_X = CENTER_X * 2
     LINE_W = vw(100) - LINE_X - 20
 
-    step = 0
+    TEXT_COLOR = (0, 0, 0)
+    BUTTON_COLOR = (140, 140, 140)
 
+    step = 0
     wave = []
+
+    CTRLS_Y = vh(4)
+
+    freq_dec_rect = pygame.Rect((vw(5), CTRLS_Y), (BTN_W, BTN_H))
+    freq_label = font.lg.render(f"Frequency", True, TEXT_COLOR)
+    freq_inc_rect = pygame.Rect((vw(5) + BTN_W + 4, CTRLS_Y), (BTN_W, BTN_H))
+
+    def draw_controls():
+        pygame.draw.rect(game.gameDisplay, BUTTON_COLOR, freq_dec_rect)
+        pygame.Surface.blit(screen, (freq_dec_rect.x, CTRLS_Y - 8), area=None, special_flags = 0)
+        pygame.draw.rect(game.gameDisplay, BUTTON_COLOR, freq_inc_rect)
+
 
     def draw():
         x = CENTER_X
         y = CENTER_Y
         prev_x = x
         prev_y = y
+
+        draw_controls()
 
         for i in range(num_circles):
             n = 2 * i + 1
@@ -74,19 +97,23 @@ def view(game):
 
             clr = CIRCLE_COLORS[i % len(CIRCLE_COLORS)]
 
+            pygame.draw.line(screen, CIRCLE_COLOR, (prev_x, prev_y), (x, y), 1)
+
             pygame.draw.circle(screen, CIRCLE_COLOR, (prev_x, prev_y), rad, STROKE_WIDTH + 1)
             pygame.draw.circle(screen, CIRCLE_COLOR, (prev_x, prev_y), rad + 1, STROKE_WIDTH)
             pygame.draw.circle(screen, clr, (prev_x, prev_y), rad, STROKE_WIDTH)
+
             pygame.draw.circle(screen, CIRCLE_COLOR, (x, y), 3)
 
             prev_x = x
             prev_y = y
 
         wave.insert(0, y)
-        pygame.draw.line(screen, (200, 200, 220), (x + 3, y), (LINE_X, y), 3)
-
         if len(wave) >= 3:
             utils.draw_catmull_rom_spline(screen, wave, LINE_X, CIRCLE_COLOR, 5)
+
+        pygame.draw.line(screen, (200, 200, 220), (x + 3, y), (LINE_X, y), 3)
+        pygame.draw.circle(screen, (200, 200, 223), (LINE_X, y), 8)
 
 
     def update():
