@@ -1,0 +1,9 @@
+[Activity]
+name = River Crossing
+activity_version = 1
+bundle_id = org.sugarlabs.rivercrossing
+icon = boat
+exec = sugar-activity3 activity.FourierSeriesActivity
+license = GPLv3+
+summary = A Puzzle and Strategy game
+repository = https://github.com/marsian83/GoatCabbageWolfActivity.git
