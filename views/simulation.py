@@ -27,6 +27,9 @@ def view(game):
     width = vw(100)
     height = vh(100)
 
+    TEXT_COLOR = (0, 0, 0)
+    BUTTON_COLOR = (140, 140, 140)
+
     BTN_W = vw(6)
     BTN_H = vh(5)
 
@@ -45,8 +48,11 @@ def view(game):
     ]
     MAX_RADIUS = vw(10)
     STROKE_WIDTH = 2
-    SPEED = 1 / 100
+    PLUS = font.lg.render(f"+", True, TEXT_COLOR)
+    MINUS = font.lg.render(f"-", True, TEXT_COLOR)
 
+    SPEED_STEP = 1 / 800
+    speed = 1 / 100
     num_circles = 6
 
     total_radius = 0
@@ -61,23 +67,35 @@ def view(game):
     LINE_X = CENTER_X * 2
     LINE_W = vw(100) - LINE_X - 20
 
-    TEXT_COLOR = (0, 0, 0)
-    BUTTON_COLOR = (140, 140, 140)
-
     step = 0
     wave = []
 
-    CTRLS_Y = vh(4)
+    CTRLS_Y = vh(5)
 
     freq_dec_rect = pygame.Rect((vw(5), CTRLS_Y), (BTN_W, BTN_H))
     freq_label = font.lg.render(f"Frequency", True, TEXT_COLOR)
     freq_inc_rect = pygame.Rect((vw(5) + BTN_W + 4, CTRLS_Y), (BTN_W, BTN_H))
 
-    def draw_controls():
-        pygame.draw.rect(game.gameDisplay, BUTTON_COLOR, freq_dec_rect)
-        pygame.Surface.blit(screen, (freq_dec_rect.x, CTRLS_Y - 8), area=None, special_flags = 0)
-        pygame.draw.rect(game.gameDisplay, BUTTON_COLOR, freq_inc_rect)
+    circles_dec_rect = pygame.Rect((vw(5), CTRLS_Y), (BTN_W, BTN_H))
+    circles_label = font.lg.render(f"Circles / Accuracy", True, TEXT_COLOR)
+    circles_inc_rect = pygame.Rect((vw(5) + BTN_W + 4, CTRLS_Y), (BTN_W, BTN_H))
 
+    def draw_controls():
+        pygame.draw.rect(screen, BUTTON_COLOR, freq_dec_rect)
+        game.blit_centred(MINUS, freq_dec_rect.center)
+        pygame.Surface.blit(screen, freq_label, (freq_dec_rect.x, CTRLS_Y - 26), area=None, special_flags = 0)
+        pygame.draw.rect(screen, BUTTON_COLOR, freq_inc_rect)
+        game.blit_centred(PLUS, freq_inc_rect.center)
+
+    def handle_controls():
+        nonlocal speed
+        for event in game.events:
+            if event.type == pygame.MOUSEBUTTONUP:
+                mouse_pos = pygame.mouse.get_pos()
+                if freq_dec_rect.collidepoint(mouse_pos):
+                    speed = max(1 / 1000,speed  - SPEED_STEP)
+                if freq_inc_rect.collidepoint(mouse_pos):
+                    speed = min(1 / 5, speed + SPEED_STEP)
 
     def draw():
         x = CENTER_X
@@ -118,11 +136,12 @@ def view(game):
 
     def update():
         nonlocal step
-        step += SPEED
+        step += speed
 
         if len(wave) > LINE_W:
             wave.pop()
 
+        handle_controls()
         draw()
 
     game.update_function = update

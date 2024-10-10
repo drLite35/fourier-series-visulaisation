@@ -42,7 +42,9 @@ class FourierSim:
     def vh(self, y):
         return (y * self.display_rect.height) // 100
 
-    def blit_centred(self, surf, x, y):
+    def blit_centred(self, surf, pos):
+        x = pos[0]
+        y = pos[1]
         rect = surf.get_rect()
         centered_coords = (x - rect.width // 2, y - rect.height // 2)
         self.gameDisplay.blit(surf, centered_coords)
