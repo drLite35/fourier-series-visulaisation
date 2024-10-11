@@ -76,9 +76,9 @@ def view(game):
     freq_label = font.lg.render(f"Frequency", True, TEXT_COLOR)
     freq_inc_rect = pygame.Rect((vw(5) + BTN_W + 4, CTRLS_Y), (BTN_W, BTN_H))
 
-    circles_dec_rect = pygame.Rect((vw(5), CTRLS_Y), (BTN_W, BTN_H))
+    circles_dec_rect = pygame.Rect((vw(20), CTRLS_Y), (BTN_W, BTN_H))
     circles_label = font.lg.render(f"Circles / Accuracy", True, TEXT_COLOR)
-    circles_inc_rect = pygame.Rect((vw(5) + BTN_W + 4, CTRLS_Y), (BTN_W, BTN_H))
+    circles_inc_rect = pygame.Rect((vw(20) + BTN_W + 4, CTRLS_Y), (BTN_W, BTN_H))
 
     def draw_controls():
         pygame.draw.rect(screen, BUTTON_COLOR, freq_dec_rect)
@@ -87,8 +87,14 @@ def view(game):
         pygame.draw.rect(screen, BUTTON_COLOR, freq_inc_rect)
         game.blit_centred(PLUS, freq_inc_rect.center)
 
+        pygame.draw.rect(screen, BUTTON_COLOR, circles_dec_rect)
+        game.blit_centred(MINUS, circles_dec_rect.center)
+        pygame.Surface.blit(screen, circles_label, (circles_dec_rect.x, CTRLS_Y - 26), area=None, special_flags = 0)
+        pygame.draw.rect(screen, BUTTON_COLOR, circles_inc_rect)
+        game.blit_centred(PLUS, circles_inc_rect.center)
+
     def handle_controls():
-        nonlocal speed
+        nonlocal speed, num_circles
         for event in game.events:
             if event.type == pygame.MOUSEBUTTONUP:
                 mouse_pos = pygame.mouse.get_pos()
@@ -96,6 +102,11 @@ def view(game):
                     speed = max(1 / 1000,speed  - SPEED_STEP)
                 if freq_inc_rect.collidepoint(mouse_pos):
                     speed = min(1 / 5, speed + SPEED_STEP)
+
+                if circles_dec_rect.collidepoint(mouse_pos):
+                    num_circles = max(1 ,num_circles  - 1)
+                if circles_inc_rect.collidepoint(mouse_pos):
+                    num_circles = min(15, num_circles + 1)
 
     def draw():
         x = CENTER_X
